@@ -8,7 +8,7 @@ R is an object oriented language: Everything is an object
 -   Objects that allow to perform actions on other objects are called functions. They are "containers" with instructions about what to do with other objects (e.g., `mean()`, `sum()`)
 -   All functions have documentation files that can be accessed using `?` (e.g., `?mean()`)
 -   Every function requires a minimum set of arguments to run successfully (e.g., `mean()` requires an argument `x`)
--   Every function has constraints about the type of object that to be passed (e.g., `sum()` expects a vector)
+-   Every function has constraints about the type of object to be passed (e.g., `sum()` expects a vector)
 
 Naming rules for R objects
 --------------------------
@@ -150,11 +150,43 @@ Work out the exercises on a new branch of your git repo. Once you are confident 
 Respond to the following questions and push the responses to your GitHub:
 
 -   Create a character vector `family` with your family members' name
+
+``` r
+family <- c("Peter","Mark","Michael","Eileen")
+```
+
 -   Create a vector `birth` with their birth year
+
+``` r
+birth <- c(1987, 1985, 1952, 1951)
+```
+
 -   Create another vector `age` with your family members' ages (calculated using `birth`)
+
+``` r
+age <- 2018 - birth
+```
+
 -   Use `typeof()` to make sure that `family`, `birth`, and `age` are the appropriate type (character, integer/double, integer/double)
+
+``` r
+typeof(family)
+## [1] "character"
+typeof(birth)
+## [1] "double"
+typeof(age)
+## [1] "double"
+```
+
 -   Use `names()` to name the elements of `age` with the family members' names from `family`
+
+``` r
+names(age) <- family
+```
+
 -   Use inline code to print your name and age (using indexing)
+
+33
 
 -   What happens when:
 -   You extract using a positive index bigger than the vector length?
