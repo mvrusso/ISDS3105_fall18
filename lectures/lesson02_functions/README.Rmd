@@ -237,10 +237,31 @@ Turn the followings into functions, making sure that your function retrieves an 
 
 
 - `mean(x, na.rm = T)`
+```{r}
+meanie <- function(x) {
+  if(!is.numeric(x)) stop("'x' is not numeric")
+  
+  mean(x, na.rm = TRUE)
+}
+```
 
 - `x / sum(x, na.rm = TRUE)`
+```{r}
+vector_over_sum <- function(x) {
+  if(!is.numeric(x)) stop("'x' is not numeric")
+  x/sum(x, na.rm = TRUE)
+}
+```
+
 
 - `sd(x, na.rm = TRUE) / mean(x, na.rm = TRUE)`
+```{r}
+standard_over_mean <- function(x) {
+  if(!is.numeric(x)) stop("'x' is not numeric")
+  sd(x, na.rm = TRUE)/mean(x, na.rm = TRUE)
+}
+```
+
 
 
 For the pros: Use `BRRR::skrrrahh(34)` to listen DJ Khaled yelling "They don't wanna see us win!" when `x` is not numeric. The package is available on GitHub only:
@@ -255,6 +276,12 @@ devtools::install_github("brooke-watson/BRRR")
 
 Write a function `yearlySalary` to convert any values <8000 to NA. You can use indexing or a function such as `ifelse()`. Then, output each value as a dollar amount using `scales::dollar()` or `paste()`.
 For example, the `c(100, 0, NA, 2000, 8000)` should be returned as `c("$NA", "$NA", "$NA", "$NA", "$8000")`.
+```{r}
+yearlySalary <- function(x) {
+  if(!is.numeric(x)) stop("'x' is not numeric")
+  ifelse(x < 8000, '$NA', scales::dollar(x))
+}
+```
 
 
 
