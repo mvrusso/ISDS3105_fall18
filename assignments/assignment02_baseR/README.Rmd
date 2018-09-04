@@ -49,14 +49,16 @@ prices <- round(prices, digits = 3)
 5. Use indexing to report the prices for Canada, United States, Mexico
 ```{r}
 c(prices[5], prices[21], prices[41])
+
+prices[c('Canada', 'United States', 'Mexico')]
+## I found two methods that work.The second is more efficient since we don't have to count to find the positions of the countries.
 ```
 
 6. Use inline code and the function `length()` to display the following sentence:
 
 "The are x observations in the Big-Mac Index"
-```{r}
-c("There are", length(prices), "in the Big-Mac Index")
-```
+
+`r paste("There are", length(prices), "in the Big-Mac Index")`
 
 
 7. Convert the prices from Dollar to Euro (1 Dollar = .83 Euro). In the narrative, comment about the property which allows you to combine a vector of length 1 (the exchange rate) with a vector of length 56 (the prices). 
@@ -79,20 +81,21 @@ euro_prices <- .83*prices
  
  - Would `rep(.83, 45)` also work? Why?
 ```{r}
-##This would not work since 45 is not a multiple of 56.
+##This does work, but I receive an error message since 45 is not a multiple of 56.
 ```
  
 
 8. In your narrative, mention that we are going to drop the 46th element. Use dynamic code to report the country that will drop.
 ```{r}
 ##We are going to exclude the 46th element.
+paste('We are dropping', countries[46], 'from our report.' )
 ```
 
 
 9. Overwrite the vector of prices with a new vector without observation 46. Use `length()` to make sure you have one observation less.
 ```{r}
-prices_without_46 <- prices[-46]
-length(prices_without_46)
+prices <- prices[-46]
+length(prices)
 ```
 
 10. Knit, commit and push to your GitHub repo `assignment`. Then submit the link to the *assignment folder* on Moodle.
