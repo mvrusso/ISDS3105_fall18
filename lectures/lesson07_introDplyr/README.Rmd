@@ -82,12 +82,14 @@ selfiesCasualties %>%
 
 1. Using `titanicDt`, filter the count of female children who did not survive
 ```{r}
-
+titanicDt %>% 
+  filter(Age == 'Child', Sex == 'Female', Survived == 'No')
 ```
 
 2. Using `beerDt`, filter the records from 1903 to 1997 (use the shortcut `dplyr::between()`)
 ```{r}
-
+beerDt %>% 
+  filter()
 ```
 
 3. Using `untidyReview`, filter all records with missing values on `reviewLocation`. Hint: you need to use `is.na()` to test what elements are missing.
@@ -122,12 +124,14 @@ Note that `distinct` will also automatically drop all columns that are not passe
 
 1. Using `selfiesCasualties`, subset the dataset by the distinct levels for `class`
 ```{r}
-
+selfiesCasualties %>% 
+  distinct(class, .keep_all = TRUE)
 ```
 
 2. Using `titanicDt`, create a 2 columns dataset for the unique combinations of `Age` and `Sex`
 ```{r}
-
+titanicDt %>% distinct(Age)
+distinct(titanicDt, )
 ```
 
 
@@ -143,12 +147,13 @@ selfiesCasualties %>%
 
 1. Using `titanicDt`, arrange by Class, Age, Sex
 ```{r}
-
+titanicDt %>% 
+  arrange(Class, Age, Sex)
 ```
 
 2. Using `titanicDt`, arrange descending by `n`
 ```{r}
-
+arrange(titanicDt, desc(n))
 ```
 
 ## Manipulate Columns
@@ -165,12 +170,12 @@ To select multiple columns, you can use `class:age` (from variable class to vari
 
 1. Using `sn_revenue`, select only variables for company names and year 2015.
 ```{r}
-
+sn_revenue %>% select(company, y2015)
 ```
 
 2. Using `untidyReview`, select only the variables containing review ratings.
 ```{r}
-
+untidyReview %>% select(reviewOverall:reviewValue)
 ```
 
 
@@ -178,22 +183,23 @@ To select multiple columns, you can use `class:age` (from variable class to vari
 
 ```{r}
 selfiesCasualties %>% 
-  mutate(birthDate = year - as.numeric(age))
+  mutate(birthDate = year - as.numeric(age)) %>% slice(1:2)
+#He added the %>% slice(1:2) part
 ```
 
 1. Using `beerDt`, convert the consumption from gallons per capita to liters (1 gallon 3.78 liters)
 ```{r}
-
+beerDt %>% mutate(liters = GallonsCapita*3.78)
 ```
 
 2. Using `socialNetwork_users` add a percent sign to the variable percent (use `paste0()`)
 ```{r}
-
+socialNetwork_users %>% mutate(paste0(percent, "%"))
 ```
 
 3. Using `untidyReview`, turn `reviewStayYear` into a integer
 ```{r}
-
+untidyReview %>% mutate(Year = as.integer(reviewStayYear))
 ```
 
 
@@ -209,7 +215,10 @@ selfiesCasualties %>%
 
 1. Using `titanicDt`, calculate the average casualties by class (note that the dataset has both survivors/non-survivors counts)
 ```{r}
-
+titanicDt %>% 
+  filter(Survived == 'No') %>% 
+  group_by(Class) %>% 
+  summarise(tot = mean(n))
 ```
 
 2. Using `titanicDt`, calculate the average casualties by gender (note that the dataset has both survivors/non-survivors counts)
@@ -234,7 +243,10 @@ Because counting observations is a very common task, dplyr offers the wrapper `c
 
 ```{r}
 selfiesCasualties %>% 
+  group_by(country, gender) %>% summarise(count = n())
   count(country, gender)
+  
+  #come back to this
 ```
 
 Exercise: Use `selfiesCasualties` to calculate the percent of casualties by class. One way, is to combine `groub_by()`, `sum()` and `n()`. Make sure you understand the difference between `sum()` and `n()` and how they behave when grouping.
@@ -255,6 +267,9 @@ You want to create a single dataset containing the records for both. You can use
 twitter_users %>% 
   full_join(fbMobile_users, by = c('Year' = 'Year'), suffix  = c('twitter', 'fb'))
 #also inner_join(fbMobile_users, by = 'Year', suffix  = c('twitter', 'fb'))
+
+twitter_users %>% 
+  inner_join(fbMobile_users, by = 'Year', suffix = c('twitter', 'fb'))
 ```
 
 Note that if you do not pass a character vector of variables to join, `*_join` uses all the variables with common names across the two tables.
@@ -273,7 +288,7 @@ By default, `full_join` creates an `NA` for the missing observation in `fbMobile
 
 ```{r}
 fbMobile_users %>% 
-  full_join(twitter_users, by = 'Year', suffix  = c('twitter', 'fb'))
+  full_join(twitter_users, by = 'Year', suffix  = c('fb', 'twitter'))
 ```
 
 
@@ -281,15 +296,15 @@ To keep only the years for those which appear in both datasets:
 
 ```{r}
 fbMobile_users %>% 
-  inner_join(twitter_users, by = 'Year', suffix  = c('twitter', 'fb'))
+  inner_join(twitter_users, by = 'Year', suffix  = c('fb', 'twitter'))
 ```
 
 
-Morover:
+Moreover:
 
 ```{r}
 #use ?left_join() ... to view the documentation
-left_join(twitter_users, fbMobile_users, by = 'Year') #retain all records from A, add those from B that match ()
+left_join(twitter_users, fbMobile_users, by = 'Year')#retain all records from A, add those from B that match ()
 right_join(twitter_users, fbMobile_users, by = 'Year') #retain all records from B, add those from A that match
 anti_join(twitter_users, fbMobile_users, by = 'Year') #retain all records from A with not matches in B (keep just columns from A)
 semi_join(twitter_users, fbMobile_users, by = 'Year') #retain all records from A with matches in B (keep just columns from A)
@@ -303,14 +318,18 @@ semi_join(twitter_users, fbMobile_users, by = 'Year') #retain all records from A
 if (!require(nycflights13)) install.packages('nycflights13')
 #flights
 #airlines
+
+full_join(flights, airlines) %>% nrow
 ```
 
 
 1. Use the appropriate join to add the full carrier names to `flights` using `airlines` :
 
+
 ```{r}
 
 ```
+
 
 
 2. Count the number of flights for each carrier using the full carrier name. Then plot a bar chart of the counts.

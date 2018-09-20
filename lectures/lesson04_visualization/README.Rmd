@@ -58,13 +58,16 @@ The [concept of _mapping_](http://r4ds.had.co.nz/data-visualisation.html#aesthet
 
 ```{r, eval=FALSE}
 ggplot() +
-  geom_col(data =  twitter_users, aes(x = Year, y = millions, ------ ))
+  geom_col(data =  twitter_users, aes(x = Year, y = millions, fill = factor(Year)))
 ```
 
 From `freqCasualties`, plot a barchart of the count of casualties by class and gender (each bar refers to a class)
 
 ```{r}
 #what do we want to map to x and y? how do we map the third variable?
+
+ggplot() +
+  geom_col(data = freqCasualties, aes(x = class, y = n, fill = gender))
 ```
 
 
@@ -73,8 +76,13 @@ Some times, you want to manually **set** a value for a certain aesthetic, rather
 ```{r}
 ggplot() +
   geom_line(data =  twitter_users, aes(x = Year, y = millions, color ='blue' )) 
+
+#We do not see a blue line because when we put color = 'blue' as an input for aes, it looks for a variable called blue.  
+
 ggplot() +
-geom_line(data =  twitter_users, aes(x = Year, y = millions), color ='blue') 
+geom_line(data =  twitter_users, aes(x = Year, y = millions), color ='blue')
+
+#Here we do see a blue line because color is now an input for the geom_line operator.  
 ```
 
 To change color, you can use either [color names](http://www.stat.columbia.edu/~tzheng/files/Rcolor.pdf) (e.g., 'red'), hex codes (e.g., `#ff0000`) or rgb (e.g. `rgb(255, 0, 0)`).
@@ -85,12 +93,25 @@ So far, we specified aesthetics and datasets inside a specific geom. However, if
 #Use the dataset twitter_users
 #Use the set of aesthetics: aes(x = Year, y = millions )
 #combine together geom_line() and geom_point() 
+
+ggplot()+
+  geom_line(data = twitter_users, aes(x = Year, y = millions))+
+  geom_point(data = twitter_users, aes(x = Year, y = millions))
+
+ggplot(data = twitter_users)+
+  geom_point(aes(x = Year, y = millions))+
+  geom_line(aes(x = Year, y = millions))
 ```
 
 
 ```{r}
 #use twitter_users to plot a linechart of twitter users over time
 #use sn_users to overlay a linechart of FB users over time
+
+ggplot() + 
+  geom_line(data = sn_users, aes(x = year, y = facebook, color = 'fb'))+
+  geom_line(data = twitter_users, aes(x = Year, y = millions, color = 'twitter'))
+
 ```
 
 
@@ -99,6 +120,12 @@ So far, we specified aesthetics and datasets inside a specific geom. However, if
 
  - use `beerDt` to create a linechart of beer consumption (in gallons of ethanol) in US from 1903.
  - add a layer of points using `geom_point`
+```{r}
+ggplot(data = beerDt)+
+  geom_line(aes(x = Year, y = GallonsCapita))+
+  geom_point(aes(x = Year, y = GallonsCapita))
+```
+ 
  
  Suppose that you now want to flag (e.g., use a different color) the observation for consumption in your birthyear. We can do it in two steps:
     
@@ -106,6 +133,24 @@ So far, we specified aesthetics and datasets inside a specific geom. However, if
     2. Map `myBirthYear` to the fill of `geom_point` to flag your birth year
     3. Use ggtitle to add a title to the chart
 
+```{r}
+#1.
+
+beerDt$myBirthYear<- ifelse(beerDt$Year == 1985, 'My birthyear', NA)
+
+#2.
+
+ggplot(data = beerDt)+
+  geom_point(aes(x = Year, y = GallonsCapita, color = myBirthYear))
+
+
+#3.
+ggplot(data = beerDt)+
+  geom_point(aes(x = Year, y = GallonsCapita, color = myBirthYear))+
+  ggtitle('My Birth Year')
+
+
+```
 
 
 
