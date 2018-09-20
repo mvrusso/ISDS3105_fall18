@@ -15,13 +15,62 @@ For this assignment we are using a dataset from the website [Fivethirtyeight](ht
 
 2. In the narrative, add a brief description (`?bad_drivers` for a description of the dataset) using *inline code* to show the variable names.
 
+```{r echo=TRUE}
+#This dataset is used to determine which state has the worst drivers.  
+
+num_drivers
+#This variable gives the number of drivers involved in fatal collisions per billion miles.
+
+perc_speeding
+#This variable gives the percentage of drivers involved in fatal collisions who were speeding.
+
+perc_alcohol
+#This variable gives the percentage of drivers involved in fatal collisions who were alcohol-impaired.
+
+perc_not_distracted
+#This is the percentage of drivers involved in fatal collisions who were not distracted.
+
+perc_no_previous
+#This is the percentage of drivers involved in fatal collisions who were not in any previous accidents.
+
+insurance_premiums
+#This variable is the car insurance premiums.
+
+losses
+#This variable gives the losses incurred by insurance companies for collisions per insured driver.
+```
+
+
 3. Plot a dot chart of premiums by losses. Map the count of drivers to the size of the dots.
+
+```{r}
+ggplot(data = bad_drivers)+
+  geom_point(aes(x = insurance_premiums, y = losses, size = num_drivers))
+```
+
 
 4. Test what values from `state` are equal to "Louisiana" and assign the output to a new variable called `Louisiana' (logical)
 
+```{r}
+Louisiana <- bad_drivers$state == 'Louisiana'
+```
+
+
 5. Map the variable "Louisiana" to `color`. That way, the dot referring to Louisiana should have a different color.
 
+```{r}
+ggplot(data = bad_drivers)+
+  geom_point(aes(x = insurance_premiums, y = losses, size = num_drivers, color = Louisiana))
+```
+
+
 6. In your narrative, use inline code to report the average insurance premium and count of losses in US, and the premium and losses in Louisiana. Do not type those values manually, but extract them from the dataset using inline code.
+
+```{r}
+avg_prem <- mean(bad_drivers$insurance_premiums)
+
+```
+
 
 7. Report in a tabular format the 5 states with the highest premiums (include only state and insurance_premiums)
 
