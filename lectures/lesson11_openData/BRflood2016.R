@@ -3,15 +3,18 @@
 #' create your  `token <- c(sec = ..., app = ...)` and keep 
 #' it into a separate .R to source()
 
-source(here('lectures/lesson11_openData/tokenSocrata.R'))
+source(here('lectures/lesson11_openData/R_Token.R')) #This is like running everything in R_Token.R
+if(!require(RSocrata)) {install.packages('RSocrata')}
 library(RSocrata)
 library(here)
 library(tidyverse)
 
+
 #' Google API requirements has changed. As a results, the package
-#' ggmap needs revisions. For now, we are stacked witht he dev version
+#' ggmap needs revisions. For now, we are stacked with the dev version
 if(!requireNamespace("devtools")) install.packages("devtools")
 devtools::install_github("dkahle/ggmap", ref = "tidyup")
+if(!require(ggmap)) {install.packages('ggmap')}
 library(ggmap)
 
 ######################################
@@ -34,12 +37,18 @@ query <- "$where=createdate between '2016-08-12' and '2016-08-22'"
 dt_311 <- read.socrata(paste0(apiEndpoint, query), app_token = token[['app']])
 dt_311 <- as_tibble(dt_311)
 
-dt_311 <- dt_311 %>% 
+ dt_311 <- dt_311 %>% 
               mutate(geolocation = str_extract_all(geolocation, '[-,.,0-9]+')) %>% 
               mutate(long = map_chr(geolocation, 1), lat = map_chr(geolocation, 2)) %>% 
               mutate_at(vars(long, lat), as.double) # same as mutate(long = as.double(long), lat = as.double(lat))
 
-
+ str_extract(c("-91.062607", "30.483549"), '[-,.,0-9]')
+ str_extract(c("-91.062607", "30.483549"), '[-,.,0-9]+')
+ 
+ str_extract_all(c("-91.062607", "30.483549"), '[-,.,0-9]')
+ str_extract_all(c("-91.062607", "30.483549"), '[-,.,0-9]+')
+ 
+ 
 #' Register to the Google Maps Static API: 
 #' https://console.developers.google.com/projectselector/apis/api/static_maps_backend?supportedpurview=project
 #' 1. 'Create' a new project
@@ -54,7 +63,7 @@ brMap <- ggmap::get_map(location = c( lon = -91.1500, lat = 30.5000),  zoom = 10
 
 #' In case you cannot connect to the API, I saved for you the object brMap to data/mapTerrainBR.RDS
 #' brMap <- readRDS(here::here('data/mapTerrainBR.RDS')) 
-
+brMap <- readRDS(here::here('data/mapTerrainBR.RDS'))
 ggmap::ggmap(brMap) +
   geom_point(data = filter(dt_311, parenttype == "DRAINAGE, EROSION, FLOODING OR HOLES"),
              aes(x = long, y = lat), color = 'darkred', alpha = .33) +
@@ -69,11 +78,12 @@ ggmap::ggmap(brMap) +
 fireIncidens <- 'https://data.brla.gov/resource/4w4d-4es6.csv?'
 query <- "$where=disp_date between '2016-08-12' and '2016-08-22'"
 
-#' Task: Use read.scorata to query the API and download fire incidents records. 
+#' Task: Use read.scorata to query the API and download fire incidents records.
 #' Filter only calls for inci_descript: 
 #' 'severe weather or natural disaster, other' OR 'water evacuation'
-
-
+dt_fire_calls <- read.socrata(paste0(fireIncidens, query), app_token = token[['app']])
+dt_fire_calls <- as_tibble(dt_fire_calls)
+filter(dt_fire_calls, inci_descript == 'Severe weather or natural disaster, Other' | inci_descript == 'Water evacuation')
 
 ######################################
 ####    LOOTING 911 calls        #####
@@ -87,11 +97,13 @@ query <- "$where=offense_date between '2016-08-12' and '2016-08-22'"
 #' Task: Use read.scorata to query the API and download police incidents records. 
 #' Filter only calls for offense_desc: 'looting'
 
-
-
+dt_crime_calls <- read.socrata(paste0(crimeIncidents, query), app_token = token[['app']])
+dt_crime_calls <- as_tibble(dt_crime_calls)
+filter(dt_crime_calls, offense_desc == 'LOOTING')
 ######################################
 ####    Layer of inundate areas  #####
 ######################################
+
 library(rgdal)
 library(ggpolypath)
 shpFile <- here('data/Estimated_Flood_Inundation_Area/Estimated_Flood_Inundation_Area.shp')

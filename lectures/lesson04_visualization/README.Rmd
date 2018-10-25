@@ -68,6 +68,7 @@ From `freqCasualties`, plot a barchart of the count of casualties by class and g
 
 ggplot() +
   geom_col(data = freqCasualties, aes(x = class, y = n, fill = gender))
+
 ```
 
 
@@ -136,7 +137,7 @@ ggplot(data = beerDt)+
 ```{r}
 #1.
 
-beerDt$myBirthYear<- ifelse(beerDt$Year == 1985, 'My birthyear', NA)
+beerDt$myBirthYear<- ifelse(beerDt$Year == 1985, 'My birth year', NA)
 
 #2.
 

@@ -218,11 +218,11 @@ showType <- function(x) {
       
       x <- 'Is logical!'
       
-    } else {
+    } 
       
-      x <-  'Is something else'
-      
-    }
+      else {x <-  'Is something else'
+      }
+    
   x
 }
 showType('hi')

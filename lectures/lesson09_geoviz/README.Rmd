@@ -15,9 +15,10 @@ library(fivethirtyeight)
 In ggplot2 you can draw maps using polygons to indicate geographical areas. To draw a polygon, use `geom_polygon` and a dataset of x-y coordinates:
 
 ```{r}
-ggplot(data = tibble(x = c(1, 2, 3), y = c(1, 3, 1))) + 
+ggplot(data = tibble(x = c(1,2,3), y = c(1,3,1)))+
   geom_polygon(aes(x = x, y = y)) #geom polygon connects by default the start and end points
-ggplot(data = tibble(x = c(1, 2, 3, 1), y = c(1, 3, 1, 1))) + 
+
+ggplot(data = tibble(x = c(1,2,3,1), y = c(1,3,1,1)))+
   geom_path(aes(x = x, y = y))
 ```
 
@@ -54,7 +55,7 @@ mutate(premiums, state = tolower(state)) %>% #reducing to lower-case to make sur
 mapInsurance 
 ```
 
-Not bad, let's to some final twicks. For instance, it is unclear from the legend which type of variable we are plotting. Since premiums are in dollars, we can add a dollar sign. Also, we override the default labels to include the highest and lowest value on the color-gradient legend:
+Not bad, let's do some final twicks. For instance, it is unclear from the legend which type of variable we are plotting. Since premiums are in dollars, we can add a dollar sign. Also, we override the default labels to include the highest and lowest value on the color-gradient legend:
 
 ```{r}
 if (!require('scales')) {
@@ -67,19 +68,19 @@ bks <- cbreaks(c(min(bad_drivers$insurance_premiums), max(bad_drivers$insurance_
 
 ```{r}
 mapInsurance +
- scale_fill_gradient(limits = c(min(bks$breaks), max(bks$breaks)), 
+ scale_fill_gradient(limits = c(min(bks$breaks), max(bks$breaks)),
                      breaks = bks$breaks, labels = dollar_format(), 
                      low = 'white', high = '#a50e39', name = 'Premiums') +
   #axes names and anchros are meaningless: we can hide them
-  theme(panel.background = element_blank(), 
-        axis.title = element_blank(), 
+  theme(panel.background = element_blank(),
+        axis.title = element_blank(),
         axis.text = element_blank(), 
         axis.ticks = element_blank(),
         legend.title = element_text(face = 'bold'))
 ```
 
 
-And of course, we can use facetting too. For instance for plotting both `perc_speeding` and `perc_speeding`
+And of course, we can use facetting too. For instance for plotting both `perc_speeding` and `perc_alcohol`
 
 ```{r}
 select(bad_drivers, state, perc_speeding, perc_alcohol) %>% 
@@ -102,14 +103,14 @@ select(bad_drivers, state, perc_speeding, perc_alcohol) %>%
         legend.title = element_text(face = 'bold'))
 ```
 
-Similarly to any other geoms, you can map more variables to the other aes available form `geom_polygon`. For instance, you can map a variable to the transparency using `alpha`
+Similarly to any other geoms, you can map more variables to the other aes available from `geom_polygon`. For instance, you can map a variable to the transparency using `alpha`
 
 ```{r}
 #data source: https://uselectionatlas.org/
 dtEl <- readxl::read_xlsx(here::here('data/US_presidentialElection.xlsx'), sheet = 2, skip=1) %>% slice(-1)
 dtEl <- dtEl %>% select(State, `Clinton, Hillary - Democratic`, `Trump, Donald - Republican`, PVI) %>% 
   gather('candidate', 'share', -State, -PVI)
-
+dtEl <- dtEl %>% group_by(State) %>% arrange(desc(share)) %>% slice(1) %>% ungroup()
 dtEl <- mutate(dtEl, State = tolower(State))
 dtEl <- dtEl %>% 
           mutate(State = case_when(State == 'washington dc' ~ 'district of columbia',
@@ -136,8 +137,8 @@ However, the issue with the previous map is that bigger shape somewhat magnetize
 
 
 ```{r}
-if (!require('geofacet')) install.packages('geofacet')
 
+if (!require('geofacet')) install.packages('geofacet')
 
 bad_drivers %>% left_join(tibble(abb = state.abb,state = state.name)) %>% 
     mutate(abb = case_when(state=='District of Columbia' ~ 'DC', T ~ abb)) %>% 
@@ -173,7 +174,7 @@ citypremium
 ```
 
 
-First, we need the coordinates for city names to draw a point on the map for each city. The dataset zipcode form the package `zipcode` containts all US cities:
+First, we need the coordinates for city names to draw a point on the map for each city. The dataset zipcode from the package `zipcode` containts all US cities:
 
 ```{r}
 library(zipcode)
@@ -187,7 +188,12 @@ citypremium <- citypremium %>% left_join(zipcode, by = c('city', 'state')) %>% d
 citypremium
 ```
 
-
+# A tibble: 3 x 6
+  city        state premium zip   latitude longitude
+  <chr>       <chr>   <dbl> <chr>    <dbl>     <dbl>
+1 Dallas      TX        850 75201     32.8     -96.8
+2 Baton Rouge LA       1100 70801     30.4     -91.2
+3 San Diego   CA        780 92101     32.7    -117. 
 
 ```{r}
  ggplot(states) +
@@ -212,7 +218,28 @@ citypremium
 Use the `map_data("world")` and the dataset on [alcohol consumption in the world](https://github.com/fivethirtyeight/data/blob/master/alcohol-consumption) facetting by beverage type: `beer_servings`, `spirit_servings`, `wine_servings` and `total_litres_of_pure_alcohol`. Some countries in `map_data('world')` may not have a match in the dataset of alcohol consumption: feel free to ignore them and leave them as `NA`.
 
 ```{r}
-dt <- read_csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv')
+alcohol_dt <- read_csv('https://raw.githubusercontent.com/fivethirtyeight/data/master/alcohol-consumption/drinks.csv')
+
+world <- map_data('world')
+
+z_1 <- anti_join(alcohol_dt, world, by = c('country' = 'region'))
+z_2 <- distinct(world, region)
+z_3 <- distinct(alcohol_dt, country)
+
+new_alcohol_map <- alcohol_dt %>% mutate(country = case_when(country == 'Bosnia-Herzegovina' ~ 'Bosnia and Herzegovina', country == 'Cote dIvoire' ~ 'Ivory Coast', country == 'Cabo Verde' ~ 'Cape Verde', country == 'Congo' ~ 'Republic of Congo', country == 'DR Congo' ~ 'Democratic Republic of the Congo', country == 'Russian Federation' ~ 'Russia', T ~ country))
+
+alcohol_meets_world <- new_alcohol_map %>% right_join(world, by = c('country' = 'region'))
+
+z <- distinct(alcohol_meets_world, country)
+
+alcohol_chart <- alcohol_meets_world %>% 
+  gather(beverage_type, amount, beer_servings, spirit_servings, wine_servings, total_litres_of_pure_alcohol) 
+
+alcohol_chart %>% ggplot()+
+  geom_polygon(aes(x = long, y = lat, group = group, fill = amount), color = 'white')+
+  coord_fixed(1.3)+
+  scale_fill_gradient(name = 'amount')+
+  facet_wrap(~ beverage_type)
 ```
 
 

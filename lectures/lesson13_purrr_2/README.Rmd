@@ -88,6 +88,7 @@ Create an ggplot function to draw a linechart of the `AverageRoomRate` over time
 #' want to save each file into ISDS3105_fall/lectures/lesson13_purrr_2/timeLines.
 #' You could use `dir.create()` to create the `timeLines` directory - perhaps conditionally using `dir.exists()`
 #' if the folder does not exists yet.
+hotels %>% inner_join(performance, by =c('hotel' = 'hotel'))
 ```
 
 

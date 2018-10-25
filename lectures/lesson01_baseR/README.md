@@ -190,7 +190,23 @@ names(age) <- family
 
 -   What happens when:
 -   You extract using a positive index bigger than the vector length?
+
+``` r
+age[100]
+## <NA> 
+##   NA
+```
+
 -   You subset by a name that doesn't exist?
+
+``` r
+age["Ralph"]
+## <NA> 
+##   NA
+```
+
 -   You assign a number to position 20 of the age vector?
 
 -   Read carefully the documentation for `is.vector()`. If `is.vector(x)` retrieves `TRUE`, does it mean that `x` is an atomic vector?
+
+No.

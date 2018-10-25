@@ -42,6 +42,12 @@ ggplot(data = selfiesCasualties)+
 
 #2. Plot proportions instead of counts for both the previous charts
 
+z <- sum(freqCasualties$n)
+freqCasualties$proportion <- freqCasualties$n/z
+ggplot(data = freqCasualties)+
+  geom_col(aes(x = class, y = proportion, fill = gender))
+
+
 ggplot(data = selfiesCasualties) +
  geom_bar(aes( x = class, y=..prop.., fill = gender, group = gender), position = 'dodge')
 ```
@@ -123,7 +129,12 @@ Mapping too many variables on the same geom can make your chart hard to comprehe
 
 ggplot(data = dt) +
  geom_bar(aes(x = College, fill = Sex)) +       
-  facet_wrap(~ Ethnicity, scales = 'free_y') #He also used scales = 'free'
+  facet_wrap(~ Ethnicity, scales = 'free_y')
+
+ggplot(data = dt) +
+ geom_bar(aes(x = College, fill = Sex)) +       
+  facet_wrap(~ Ethnicity, scales = 'free')
+#He also used scales = 'free'
 ```
 
 
@@ -174,6 +185,12 @@ You might have noticed that ggplot2 uses default names for the scales of the map
 #use the below function to change the legend title into "gender" the legend values into 'Male' and 'Female'
 #  scale_fill_discrete(name = ... , labels =  ... ) 
 #move the legend to the bottom. To find out how to do that, check the documentation for theme(legend.position)
+
+ggplot(data = dt)+
+  geom_bar(aes(College, fill = Sex))+
+  scale_x_discrete(name = 'College Abbreviations')+
+  scale_fill_discrete(name = 'gender', labels = c('Male', 'Female'))+
+  theme(legend.position = 'bottom')
 ```
 
 

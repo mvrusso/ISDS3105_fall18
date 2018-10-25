@@ -38,7 +38,7 @@ typeof(myDate)
 as.double(as.Date('1970-01-01'))
 ```
 
-However, `as.Data` is not very flexible in recognizing dates when their format differs from `yyyy-mm-dd`. For instance:
+However, `as.Date` is not very flexible in recognizing dates when their format differs from `yyyy-mm-dd`. For instance:
 
 ```{r, error=TRUE}
 as.Date('1918-11-04')
@@ -67,7 +67,7 @@ The package `lubridate` can "guess" better than base R function dates formatting
 library(lubridate)
 today()
 now()
-wday(now(), label = T, abbr = F)
+wday(now(), label = T, abbr =F) 
 ```
 
 Sorting the specifications for y=year, m=month, d=day, you can loosely specify a date format that is more tolerant towards little differences in the string character. Note how that makes easier to handle different formatting within the same vector (including incomplete dates):
@@ -77,7 +77,7 @@ someDates <-  ymd(c('1918-11-04', '1918/11/04', '19181104', '191811'), truncated
 dym('191811')
 ```
 
-Not how class and type are the same as using `as.Date` in base R:
+Note how class and type are the same as using `as.Date` in base R:
 
 ```{r}
 class(someDates)
@@ -108,24 +108,59 @@ second(datime)
 #. Calculate the day of the week with the most crimes 
 
 ```{r}
-load(here::here('data', 'dataset.RData'))
-dt <- left_join(dt, lkt)
+load(here::here('data', 'datasetCrime.RData'))
+dt <- left_join(dt, lkt) #If you have a crime without Id it allows you to keep the crime.  
+
+crime_by_week <- dt %>% mutate(day_of_week = wday(offensedate, label = T, abb=F)) %>% group_by(day_of_week) %>% count(day_of_week) %>% arrange(desc(n))
+
+crime_by_week$day_of_week[1]
+
+
+other_solution <- dt %>%
+ mutate(fulldate = paste(offensedate,offensetime)) %>%
+ mutate(weekday = wday(fulldate, label = T, abbr = F)) %>%
+ select(fulldate, weekday) %>%
+ count(weekday, sort = T) %>% #the sort = T part was added
+ arrange(desc(weekday))
 ```
 
 #. Use `case_when` to refactor `offensetime_discrete` using the following labels:
 
-```{}
-   - >=10.00 pm but <= 5.00 am ----> night
-   - >5.00 am but <= 10.30 am ----> morning
-   - >10.30 am but < 2.00 pm -----> day
-   - >=2.00 am but < 5.30 pm -----> afternoon
-   - anything else ---> evening
+```{r}
+#- >=10.00 pm but <= 5.00 am ----> night
+ #  - >5.00 am but <= 10.30 am ----> morning
+  # - >10.30 am but < 2.00 pm -----> day
+   #- >=2.00 pm but < 5.30 pm -----> afternoon
+  # - anything else ---> evening
+
+dt <- dt %>% mutate(offensetime = hms(offensetime))
+
+dt <- dt %>% mutate(offensetime_discrete = case_when(between(hour(offensetime), 0, 5) | between(hour(offensetime), 22, 24) ~ 'night',
+                                                     
+       hour(offensetime) == 5 & minute(offensetime) == 0 & between(second(offensetime), 1, 59) | hour(offensetime) == 5 & between(minute(offensetime), 1, 59) |
+         between(hour(offensetime), 6, 10) | hour(offensetime) == 10 &             between(minute(offensetime), 0, 30) ~ 'morning', 
+
+      hour(offensetime) == 10 & minute(offensetime) == 30 & between(second(offensetime), 1, 59) | hour(offensetime) == 10 & between(minute(offensetime), 31, 59) | between(hour(offensetime), 11, 13) | hour(offensetime) == 13 & between(minute(offensetime), 0 , 59) ~ 'day', 
+   
+   between(hour(offensetime), 14, 17) | hour(offensetime) == 17 & between(minute(offensetime), 0, 29) | hour(offensetime) == 17 & minute(offensetime) == 29 & between(second(offensetime), 0, 59) ~ 'afternoon', 
+   
+   T ~ 'evening'))
+
 ```
 
 
 #. Plot the density of crimes facetting by year. Make sure each facet goes from Jan to Dec of that year only, and the x-axis shows one label for each month
 
 ```{r, error=TRUE}
+ggplot(dt) + geom_density(aes(x = offensedate))+
+  facet_wrap(~ year, scales = 'free_x', ncol = 1)+
+  scale_x_date(name = 'month', date_breaks = '1 month', date_labels = '%b')
+
+# y = ...density... is the default
+
+ggplot(dt) + geom_density(aes(x = offensedate, group = 1))+
+  facet_wrap(~ year, ncol = 1)+
+  scale_x_date(name = 'month', date_breaks = '1 month', date_labels = '%b')
 #substitute ... with the appropriate code
 ggplot(...) +
   geom_density(aes(x = ...)) +
@@ -138,7 +173,17 @@ ggplot(...) +
 Using a dataset of terrorism casualties in Europe, plot a line chart of victims by year in France and Italy. Transform years in dates so that you can format x-axis labels as two digits numbers (e.g., '80, '90) (use `date_labels).
 
 ```{r}
-dt <- read_csv(file = 'https://raw.githubusercontent.com/fivethirtyeight/data/master/terrorism/eu_terrorism_fatalities_by_country.csv')
+terrorism_dt <- read_csv(file = 'https://raw.githubusercontent.com/fivethirtyeight/data/master/terrorism/eu_terrorism_fatalities_by_country.csv')
+
+year_of_terror_dt <- terrorism_dt %>% mutate(iyear = as.Date(iyear, origin = '1970', format = '%Y'))
+
+
+year_of_terror_dt %>% select(iyear, France, Italy) %>% gather(Country, Terror_Casualties, France, Italy) %>% 
+ ggplot()+
+  geom_line(aes(x = iyear, y = Terror_Casualties, color = Country))+
+  scale_x_date(date_labels = '%y')
+
+z <- year_of_terror_dt %>% select(iyear, France, Italy) %>% gather(Country, Terror_Casualties, France, Italy)
 ```
 
 

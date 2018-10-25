@@ -9,3 +9,4 @@ con <- DBI::dbConnect(RMySQL::MySQL(),
 #test whether you can query the db 
 print('If you get an error, try reinstalling `openssl``, restart R and rerun the script.')
 
+#Need to be on campus to connect to SQL database

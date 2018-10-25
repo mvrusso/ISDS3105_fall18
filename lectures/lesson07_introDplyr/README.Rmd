@@ -89,17 +89,19 @@ titanicDt %>%
 2. Using `beerDt`, filter the records from 1903 to 1997 (use the shortcut `dplyr::between()`)
 ```{r}
 beerDt %>% 
-  filter()
+filter(between(Year, 1903, 1997))
 ```
 
 3. Using `untidyReview`, filter all records with missing values on `reviewLocation`. Hint: you need to use `is.na()` to test what elements are missing.
 ```{r}
-
+untidyReview %>% 
+  filter(is.na(reviewLocation) == TRUE)
 ```
 
 4. Using `selfiesCasualties`, filter all records for victims who dies abroad (`country` different than `nationality`)
 ```{r}
-
+selfiesCasualties %>% 
+  filter(country != nationality)
 ```
 
 To filter positionally, use `slice()` or `filter(between(row_number(), 1, 10))`. For instance, to filter the first 3 rows from `titanicDt`
@@ -125,13 +127,15 @@ Note that `distinct` will also automatically drop all columns that are not passe
 1. Using `selfiesCasualties`, subset the dataset by the distinct levels for `class`
 ```{r}
 selfiesCasualties %>% 
-  distinct(class, .keep_all = TRUE)
+  distinct(class, .keep_all = FALSE)
 ```
 
 2. Using `titanicDt`, create a 2 columns dataset for the unique combinations of `Age` and `Sex`
 ```{r}
-titanicDt %>% distinct(Age)
-distinct(titanicDt, )
+titanicDt %>% 
+  distinct(Age, Sex)
+
+distinct(titanicDt, Age, Sex)
 ```
 
 
@@ -153,6 +157,8 @@ titanicDt %>%
 
 2. Using `titanicDt`, arrange descending by `n`
 ```{r}
+titanicDt %>% arrange(desc(n))
+
 arrange(titanicDt, desc(n))
 ```
 
@@ -176,6 +182,8 @@ sn_revenue %>% select(company, y2015)
 2. Using `untidyReview`, select only the variables containing review ratings.
 ```{r}
 untidyReview %>% select(reviewOverall:reviewValue)
+
+untidyReview %>% select(-c(reviewId, reviewStayYear))
 ```
 
 
@@ -189,12 +197,14 @@ selfiesCasualties %>%
 
 1. Using `beerDt`, convert the consumption from gallons per capita to liters (1 gallon 3.78 liters)
 ```{r}
-beerDt %>% mutate(liters = GallonsCapita*3.78)
+beerDt %>% mutate(liters = 3.78*GallonsCapita)
 ```
 
 2. Using `socialNetwork_users` add a percent sign to the variable percent (use `paste0()`)
 ```{r}
-socialNetwork_users %>% mutate(paste0(percent, "%"))
+socialNetwork_users %>% mutate(paste0(percent, '%'))
+
+socialNetwork_users %>% mutate(percent = paste0(percent, '%'))
 ```
 
 3. Using `untidyReview`, turn `reviewStayYear` into a integer
@@ -215,25 +225,26 @@ selfiesCasualties %>%
 
 1. Using `titanicDt`, calculate the average casualties by class (note that the dataset has both survivors/non-survivors counts)
 ```{r}
-titanicDt %>% 
-  filter(Survived == 'No') %>% 
-  group_by(Class) %>% 
-  summarise(tot = mean(n))
+titanicDt %>% filter(Survived == 'No') %>% group_by(Class) %>% summarise(avg_class = mean(n))
 ```
 
 2. Using `titanicDt`, calculate the average casualties by gender (note that the dataset has both survivors/non-survivors counts)
 ```{r}
-
+titanicDt %>% filter(Survived == 'No') %>% group_by(Sex) %>% summarise(avg_gender = mean(n))
 ```
 
 3. Using `beerDt`, calculate the average consumption before and after your birthyear (hint: you may create a new variable)
 ```{r}
+beerDt$preMBY <- beerDt$Year < 1985
+beerDt %>% group_by(preMBY) %>% summarise(preAVG = mean(GallonsCapita))
 
+beerDt$postMBY <- beerDt$Year >1985
+beerDt %>%  group_by(postMBY) %>% summarise(postAVG = mean(GallonsCapita))
 ```
 
-4. Using `titanicDt`, calulcate the count of casualties by nationality, then arrange descending.
+4. Using `selfiesCasualties`, calulcate the count of casualties by nationality, then arrange descending.
 ```{r}
-
+selfiesCasualties %>% group_by(nationality) %>% summarise(count_nationality = n()) %>% arrange(desc(count_nationality))
 ```
 
 
@@ -244,12 +255,16 @@ Because counting observations is a very common task, dplyr offers the wrapper `c
 ```{r}
 selfiesCasualties %>% 
   group_by(country, gender) %>% summarise(count = n())
-  count(country, gender)
-  
-  #come back to this
+
+selfiesCasualties %>% count(country, gender)
 ```
 
 Exercise: Use `selfiesCasualties` to calculate the percent of casualties by class. One way, is to combine `groub_by()`, `sum()` and `n()`. Make sure you understand the difference between `sum()` and `n()` and how they behave when grouping.
+
+
+```{r}
+selfiesCasualties %>% group_by(class) %>% summarise(percent_class = n()/85*100)
+```
 
 
 ## Manipulating dataframes
@@ -265,7 +280,7 @@ You want to create a single dataset containing the records for both. You can use
 
 ```{r}
 twitter_users %>% 
-  full_join(fbMobile_users, by = c('Year' = 'Year'), suffix  = c('twitter', 'fb'))
+  full_join(fbMobile_users, by = c('Year' = 'Year'), suffix = c('twitter', 'fb'))
 #also inner_join(fbMobile_users, by = 'Year', suffix  = c('twitter', 'fb'))
 
 twitter_users %>% 
@@ -316,10 +331,11 @@ semi_join(twitter_users, fbMobile_users, by = 'Year') #retain all records from A
 ```{r}
 #we need 2 datasets from ncyflights13 package:
 if (!require(nycflights13)) install.packages('nycflights13')
+airlines <- airlines
+flights <- flights
+
 #flights
 #airlines
-
-full_join(flights, airlines) %>% nrow
 ```
 
 
@@ -327,7 +343,7 @@ full_join(flights, airlines) %>% nrow
 
 
 ```{r}
-
+add_carrier_name <- left_join(flights, airlines, by = 'carrier') 
 ```
 
 
@@ -335,7 +351,14 @@ full_join(flights, airlines) %>% nrow
 2. Count the number of flights for each carrier using the full carrier name. Then plot a bar chart of the counts.
 
 ```{r}
+add_carrier_name %>% group_by(name) %>% summarise(tot = n()) %>% ggplot()+
+  geom_col(aes(x = name, y = tot))
 
+add_carrier_name %>%
+  group_by(name) %>%
+  summarise(tot = n()) %>%
+  ggplot() + 
+  geom_bar(aes(x = name, y = tot), stat = 'identity')
 ```
 
 3. Calculate the average visibility for the flights by each carrier. Plot the result in a barchart.
@@ -347,12 +370,29 @@ full_join(flights, airlines) %>% nrow
 4. What is the busiest route?
 
 ```{r}
+add_carrier_name %>% group_by(origin, dest) %>% summarise(busy_route = n()) %>% arrange(desc(busy_route))
 
+
+add_carrier_name$route <- paste(add_carrier_name$origin, add_carrier_name$dest)
+add_carrier_name %>%  
+  group_by(route) %>%
+  summarise(tot = n()) %>%
+  arrange(desc(tot))
+
+#JFK to LAX
 ```
 
 5. What's the busiest day for each of the departing airports? 
 
 ```{r}
+add_carrier_name %>% group_by(year, month, day, origin) %>% summarise(count_day = n()) %>% arrange(desc(count_day))
+
+add_carrier_name$date <- paste(add_carrier_name$month, add_carrier_name$day, add_carrier_name$year, sep = '/')
+
+add_carrier_name %>%
+  group_by(origin, date) %>%
+  summarise(tot = n()) %>%
+  arrange(desc(tot))
 
 ```
 

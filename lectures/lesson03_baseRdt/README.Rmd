@@ -37,7 +37,7 @@ iphoneSales <- data.frame(
                   iPhone8 = c(NA, NA, NA, NA, 6, 24, 13), 
                   iPhone8Plus = c(NA, NA, NA, NA, 10.5, 17, 24), 
                   iPhoneX = c(NA, NA, NA, NA, NA, 20.1, 17))
-t#note how "time" becomes a factor-- more details at http://r4ds.had.co.nz/factors.html#creating-factors
+#note how "time" becomes a factor-- more details at http://r4ds.had.co.nz/factors.html#creating-factors
 ```
 
 
@@ -97,7 +97,6 @@ mean(iphoneSales$iPhone7, na.rm = T)
 
 mean(as.numeric(iphoneSales[iphoneSales$time == 'Jun 2018',-c(1)]), na.rm = TRUE)
 
-  
 as.numeric(iphoneSales[iphoneSales$time == 'Jun 2018',-c(1)])
 
 ```
@@ -165,9 +164,7 @@ c('hello', 'hi', 'bye', 'ciao') %>%
 ```{r}
 # `$` is a function too. Can you pipe `iphoneSales` to `$` to extract the vectro `iPhoneX`? Then, calculate the mean removing NAs
 
-iphoneSales %>% 
-  .$iPhoneX
-
+iphoneSales %>% .$iPhoneX %>% mean(na.rm = TRUE)
 ```
 
 

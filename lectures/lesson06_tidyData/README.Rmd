@@ -66,8 +66,9 @@ Use the output from the `gather()` above to plot a line chart including both twi
 gather(sn_users, key = 'socialNet', value = 'Mil.Users', -year) %>% 
   ggplot(aes(x = year, y = Mil.Users, color = socialNet))+
   geom_line()
-```
 
+```
+-
 Another example of untidy dataset is `untidyReview` (a dataset of online review ratings). Do you see why `untidyReview` is untidy? For instance, suppose we want to plot the distribution or ratings for each attributes (reviewOverall, reviewCleanliness, etc...) with `geom_bar()` and facets. How many/what variables to you need?
 
 ```{r}
@@ -96,10 +97,12 @@ Now inspect the dataset for `iphoneSales`, containing the number of iphones sold
 # If you don't get the output you expect, inspect using str() or glimpse()
 # Also, note that by default, the group is set to the interaction of all 
 # discrete variables in the plot.
-gather(iphoneSales, key = 'Quarter', value = 'Sales', -year, na.rm = TRUE) %>% 
+ 
+gather(iphoneSales, key = 'Quarter', value = 'Sales', -year, na.rm = TRUE)%>%
 ggplot()+
-  geom_line(aes(x = Quarter, y = Sales, color = 'year'))
-  
+geom_line(aes(x = Quarter, y = Sales, color = factor(year), group = year))
+
+
 gather(iphoneSales, ... ) %>% 
   ggplot() +
   geom_line(aes(x= ..., y = ..., color = ...))
@@ -142,6 +145,16 @@ iphoneSales <- data.frame(
                   iPhone8 = c(NA, NA, NA, NA, 6, 24, 13), 
                   iPhone8Plus = c(NA, NA, NA, NA, 10.5, 17, 24), 
                   iPhoneX = c(NA, NA, NA, NA, NA, 20.1, 17))
+
+
+gather(data = iphoneSales, key = 'PhoneType', value = 'Sales', -time, na.rm = TRUE) %>%
+ggplot() +
+geom_bar(aes(x = PhoneType, y = Sales), stat = 'identity')
+
+  
+gather(iphoneSales, key = 'Model', value = 'Sales', -time, na.rm = TRUE)%>% 
+  ggplot()+
+  geom_col(aes(x = Model, y = Sales))
 ```
 
 

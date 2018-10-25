@@ -1,5 +1,5 @@
 ---
-title: 'lesson 16: Web Scraping'
+title: 'lesson 14: Web Scraping'
 output: github_document
 editor_options:
   chunk_output_type: console
@@ -29,7 +29,7 @@ Although using a search bar requires simulating some interaction of the user wit
 
 Writing code for a scraper requires referencing to the underlying HTML structure of a webpage. In Chrome, you can view the HTML code for any page by right-clicking and select "Inspect." That will open the developer console with the HTML code for the page. `rvest` allows you to scrape any information contained in the HTML code, which sometimes even exceeds what the website displayed (e.g., when there are metadata, like the id of a tweet).
 
-Although you might not be familiar with HTML, writing a scraper does not necessarily require web-developing skills. HTML is a markup language (similarly to RMarkdown) the instructs a browser (e.g., Google Chrome) on how to render, or display, a web page. Scraping information is ultimately about finding the tag that embeds the information we are looking for. To reference tags you can use either CSS paths or XPath. To compose a CSS path use tag names and [CSS selectors](https://www.w3schools.com/cssref/css_selectors.asp). If you prefer using XPath, you install Chrome extensions such as [SelectorGadget](https://selectorgadget.com/).
+Although you might not be familiar with HTML, writing a scraper does not necessarily require web-developing skills. HTML is a markup language (similarly to RMarkdown) that instructs a browser (e.g., Google Chrome) on how to render, or display, a web page. Scraping information is ultimately about finding the tag that embeds the information we are looking for. To reference tags you can use either CSS paths or XPath. To compose a CSS path use tag names and [CSS selectors](https://www.w3schools.com/cssref/css_selectors.asp). If you prefer using XPath, you install Chrome extensions such as [SelectorGadget](https://selectorgadget.com/).
 
 Suppose we want to scrape data about the rating of some companies from [Indeed](https://www.indeed.com/). My approach is usually to see how close you can get to the output you need leveraging just patterns in the URL - hopefully close enough were assembling the right URL is enough to query all the data you need!
 
@@ -148,6 +148,12 @@ companyPage %>% html_node('span.cmp-header-rating-average') %>% html_text()
 
 ```{r}
 tempUrl <- 'https://www.usclimatedata.com/climate/baton-rouge/louisiana/united-states/usla0033' 
+
+url <- html_session('https://www.usclimatedata.com/climate/baton-rouge/louisiana/united-states/usla0033/2018/10')
+url %>% 
+  html_node('div#history_data') %>% 
+html_nodes('table.daily_climate_table') %>% 
+  html_table()
 ```
 
 We want to collect temperature data for Baton Rouge from `tempUrl` for 2016-2017. The output is gonna be a tibble with: Day, High Temperature, Low Temperature, Precipitation, Snow, Snowdepth.

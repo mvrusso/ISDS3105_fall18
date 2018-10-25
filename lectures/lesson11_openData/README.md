@@ -7,7 +7,7 @@
 
 #. To access the [Socrata API](https://dev.socrata.com/) from R install `RSocrata`
 
-#. Create a new app to obtain you authentication tokens: you need them to connect to the API from R. To create an app, from the tab "my assets" click on "manage" then "Create new application
+#. Create a new app to obtain your authentication tokens: you need them to connect to the API from R. To create an app, from the tab "my assets" click on "manage" then "Create new application
 
 ![](pics/myasset.png)
 
