@@ -13,6 +13,7 @@ runtime: shiny
 library(tidyverse)
 library(flexdashboard)
 library(plotly)
+library(shiny)
 ```
 
 ```{r}
@@ -34,9 +35,9 @@ statesNames <- setNames(unique(dt$state), unique(dt$state)) %>% as.list()
     selected = 'Belgium')
 
 #dropdown menu for the second (uncomment and fill the ...)
- selectInput(id = ..., label = ..., 
-    choices = ..., 
-    selected = ...)
+ selectInput("state2", label = h4("State 2"),
+   choices = statesNames,
+   selected = 'France')
 ```
  
 
@@ -66,21 +67,21 @@ Column {data-width=350}
 
 ```{r}
 #create a function to plot a linechart given a dataset `df` and a country name `country`
-statePlot <- function(df, country) { 
-          .....
-}
-
-renderPlot({ 
-  statePlot(...) 
-  })
+# statePlot <- function(df, country) { 
+#           .....
+# }
+# 
+# renderPlot({ 
+#   statePlot(...) 
+#   })
 ```
 
 ### Make this reactive using reactive({})
 
 ```{r}
-
-renderPlot({ 
-  statePlot(dtYear, country = input$state2) 
-  })
+# 
+# renderPlot({ 
+#   statePlot(dtYear, country = input$state2) 
+#   })
 ```
 

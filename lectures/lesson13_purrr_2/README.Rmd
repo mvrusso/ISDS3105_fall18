@@ -30,6 +30,8 @@ bad_driversNested <- bad_driversSouth %>% group_by(isSouth) %>% nest()
 mapData <- as_tibble(map_data("state"))
 
 bad_driversNested <- bad_driversNested %>% mutate(stateShape = purrr::map(.x = data, ~ inner_join(.x, mapData, by = c('state' = 'region'))))
+
+
 ```
 
 ```{r}
@@ -44,6 +46,8 @@ drawMap <- function(data, title) {
 
 bad_driversNested <- bad_driversNested %>% 
   mutate(stateMap = pmap(list(data = .$stateShape, title = .$isSouth), .f = drawMap))
+
+bad_driversNested <- bad_driversNested %>% mutate(stateMap = map2(.x = .$stateShape, .y = .$isSouth, drawMap))
 # OR: mutate(stateMap = map2(.x = .$stateShape, .y = .$isSouth, drawMap)) 
 ```
 
@@ -56,7 +60,7 @@ With `map` can iterate one function over multiple elements. For iterating multip
 invoke_map(list(var, cor, cov), list(list(x = bad_drivers$insurance_premiums, y = bad_drivers$perc_alcohol)))
 
 #calculate mean and median for one variable
-invoke_map(list(avg = mean, IIQ = median), x = bad_drivers$insurance_premiums)
+invoke_map(list(avg = mean, IIQ = median), list(x = bad_drivers$insurance_premiums, x = bad_drivers$insurance_premiums))
 invoke_map_df(list(avg = mean, IIQ = median), x = bad_drivers$insurance_premiums)
 ```
 
@@ -88,7 +92,20 @@ Create an ggplot function to draw a linechart of the `AverageRoomRate` over time
 #' want to save each file into ISDS3105_fall/lectures/lesson13_purrr_2/timeLines.
 #' You could use `dir.create()` to create the `timeLines` directory - perhaps conditionally using `dir.exists()`
 #' if the folder does not exists yet.
-hotels %>% inner_join(performance, by =c('hotel' = 'hotel'))
+
+drawRoom <- function(data, title) {
+  ggplot(data = data)+
+    geom_line(aes(x = Month, y = AverageRoomRate))+
+    ggtitle('Average Room Rates for', title)
+}
+
+group_performance1 <- performance %>% group_by(hotel) %>% nest()
+
+group_performance2 <- group_performance1 %>% mutate(rates = pmap(list(data = .$data, title = .$hotel), .f = drawRoom))
+
+drawRoom(group_performance1$data[[1]], 'Tapei') #This is just an example to see how the function works.
+
+ggsave('timeLines', plot = last_plot())
 ```
 
 

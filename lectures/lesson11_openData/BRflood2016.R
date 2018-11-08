@@ -3,11 +3,11 @@
 #' create your  `token <- c(sec = ..., app = ...)` and keep 
 #' it into a separate .R to source()
 
-source(here('lectures/lesson11_openData/R_Token.R')) #This is like running everything in R_Token.R
 if(!require(RSocrata)) {install.packages('RSocrata')}
 library(RSocrata)
 library(here)
 library(tidyverse)
+source(here('lectures/lesson11_openData/R_Token.R')) #This is like running everything in R_Token.R
 
 
 #' Google API requirements has changed. As a results, the package

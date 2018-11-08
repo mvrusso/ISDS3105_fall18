@@ -22,9 +22,9 @@ In this lesson we will use a general linear model (glm) and in particular linear
 dt_temp <- read_rds(here::here('lectures', 'lesson15_regression', 'data', 'temperatures.rds'))
 #' RSocrata-BR Open Data
 #' source(here::here('lectures', 'lesson15_regression', 'callAPI.R'))
-dt_crimes <- read_rds(here::here('lectures', 'lesson15_regression', 'data', 'crimes.rds'))
+dt_crimes1 <- read_rds(here::here('lectures', 'lesson15_regression', 'data', 'crimes.rds'))
 #merge the two dataset
-dt_crimes <- dt_crimes %>% left_join(dt_temp, by = c('offense_date' = 'Day'))
+dt_crimes2 <- dt_crimes1 %>% left_join(dt_temp, by = c('offense_date' = 'Day'))
 ```
 
 # Fitting a linear model
@@ -44,7 +44,7 @@ ggplot(data = dt_crimes, aes(x = TempHigh, y = n)) +
   ggtitle('Count of crimes and daily Temperature') 
 ```
 
-`se` is for displaying confidence intervals (95% by default). The interpretation of confidence intervals it *not* a probability of being right. Check [this animation](http://rpsychologist.com/d3/CI/) for a brief explanation. It is a range of plausible values for the population paremeter being estimated along with the estimation procedure.
+`se` is for displaying confidence intervals (95% by default). The interpretation of confidence intervals is *not* a probability of being right. Check [this animation](http://rpsychologist.com/d3/CI/) for a brief explanation. It is a range of plausible values for the population paremeter being estimated along with the estimation procedure.
 
 
 ```{r fitting a lm}
@@ -66,7 +66,7 @@ Here is a quick-and-dirty way to think about setting `family` with respect to th
 
 - *Explanation*: you can write statements such as:
 
-There is a significant positive association between heat and crimes. In particular, for a 1 unite increase in the predictor (TempHigh), there is a `r exp(fit$coefficients['TempHigh'])` increase in the count of crimes.
+There is a significant positive association between heat and crimes. In particular, for a 1 unit increase in the predictor (TempHigh), there is a `r exp(fit$coefficients['TempHigh'])` increase in the count of crimes.
 
 - *Prediction*: suppose you have a dataset of values to predict:
 
@@ -90,7 +90,7 @@ Checking the model fit means assessing how good our model is in reflecting our a
 
 ```{r analysis of the residual}
 dt_res <- fortify(fit)
-ggplot(dt_res, aes(sample = .fitted))+
+ggplot(dt_res, aes(sample = .resid))+
   stat_qq() + 
   stat_qq_line() +
   ggtitle('Normal QQ-plot')
@@ -121,9 +121,9 @@ fit2 <- glm(n ~ TempHigh + Precip, family = poisson(link = 'log'), data = dt_cri
 
 ```{r}
 # This won't render in Markdown (need html):
-# library(plotly)
-# plot_ly(data = dt_crimes, z = ~n, x = ~TempHigh, y = ~Precip,opacity = 0.5) %>%
-#  add_markers( marker = list(size = 2)) %>%
+ library(plotly)
+ plot_ly(data = dt_crimes, z = ~n, x = ~TempHigh, y = ~Precip,opacity = 0.5) %>%
+  add_markers( marker = list(size = 2)) %>%
 #  #add_surface(z  = matrix(dt_crimes$n), type = 'surface') %>%
 #  layout(scene = list(xaxis = list(title = 'Tempearature'),
 #                     yaxis = list(title = 'Precipitations'),

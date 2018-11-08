@@ -175,7 +175,7 @@ Using a dataset of terrorism casualties in Europe, plot a line chart of victims 
 ```{r}
 terrorism_dt <- read_csv(file = 'https://raw.githubusercontent.com/fivethirtyeight/data/master/terrorism/eu_terrorism_fatalities_by_country.csv')
 
-year_of_terror_dt <- terrorism_dt %>% mutate(iyear = as.Date(iyear, origin = '1970', format = '%Y'))
+year_of_terror_dt <- terrorism_dt %>% mutate(iyear = ymd(iyear, truncated = 2))
 
 
 year_of_terror_dt %>% select(iyear, France, Italy) %>% gather(Country, Terror_Casualties, France, Italy) %>% 

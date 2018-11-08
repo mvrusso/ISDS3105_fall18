@@ -69,6 +69,8 @@ output <- vector('list', nrow(t))      # output
 for (i in 1:nrow(t)) {     # sequence
   output[i] <- mean(t$x[[i]])           # body
 }
+
+output
 ```
 
 Note how "filling" `t` is more efficient than iteratively add elements to `t` using indexing:
@@ -169,6 +171,11 @@ bad_driversSouth <- bad_drivers %>%
                                state = tolower(state))
 
 
+bad_driversSouth_split <- bad_driversSouth %>% 
+  split(.$isSouth) %>% 
+  purrr::map(~ right_join(.x, states, by = c('state' = 'region')) %>%  
+       filter(!is.na(insurance_premiums)))
+
 bad_driversSouth %>% 
   split(.$isSouth) %>% 
   purrr::map(~ right_join(.x, states, by = c('state' = 'region')) %>% 
@@ -202,26 +209,34 @@ bad_driversNested$chart[1]
 #' Use map to produce 3 charts: Southern State, Mountain states, Others. 
 #' Follow one of the 2 approaches above or to come up with your own, but don't 
 #' forget to iterate the call to ggplot() rather then typing it down multiple times
+
 mountainStates <- c('Montana', 'Wyoming', 'Colorado', 'New Mexico', 'Idaho', 'Utah', 'Arizona', 'Nevada')
 
-bad_driversMountain <- 
-  bad_drivers %>%
-          mutate(isMountain = case_when(
-          state %in% mountainStates ~ 'Mountain', 
-          state %in% c('Louisiana', 'Mississippi', 'Alabama', 'Georgia', 'South Carolina') ~ 'South', 
-          T ~ 'Other'), 
-          state = tolower(state))
+bad_driversMountains <-  bad_drivers %>% mutate(US_region = case_when(state %in% c('Louisiana', 'Alabama', 'Mississippi', 'Georgia', 'South Carolina') ~ 'South', state %in% c('Montana', 'Wyoming', 'Colorado', 'New Mexico', 'Idaho', 'Utah', 'Arizona', 'Nevada') ~ 'Mountain', T ~ 'Other'), state = tolower(state))
 
-
-bad_driversMountain %>% 
- split(.$isMountain) %>% 
-  purrr::map(.x = ., ~ right_join(.x, states, by = c('state' = 'region')) %>% 
+#First Solution
+bad_driversMountains %>% 
+  split(.$US_region) %>% 
+  purrr::map(~ right_join(.x, states, by = c('state' = 'region')) %>% 
                       filter(!is.na(insurance_premiums)) %>% 
                       ggplot() +
                       geom_polygon(aes(x = long, y = lat, group = group, fill = insurance_premiums), color = "white") + 
                       coord_fixed(1.3) +
                       labs(title = paste('Insurance premiums')))
 
+#Second Solution
+bad_drivers_Nested <- bad_driversMountains %>% group_by(US_region) %>% nest()
+
+bad_drivers_Nested <- bad_drivers_Nested %>% 
+ mutate(insurance_map = purrr::map(.x = data, ~ right_join(.x, states, by = c('state' = 'region')) %>% 
+                      filter(!is.na(insurance_premiums)) %>% 
+                      ggplot() +
+                      geom_polygon(aes(x = long, y = lat, group = group, fill = insurance_premiums), color = "white") + 
+                      coord_fixed(1.3) +
+                      labs(title = paste('Insurance premiums'))))
+bad_drivers_Nested$insurance_map[1]
+bad_drivers_Nested$insurance_map[2]
+bad_drivers_Nested$insurance_map[3]
 ```
 
 
