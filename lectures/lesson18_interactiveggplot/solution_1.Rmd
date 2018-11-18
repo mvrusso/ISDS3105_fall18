@@ -24,7 +24,7 @@ div(style="display:inline-block", selectInput( inputId = "yaxis", "Y variable:",
 
 ```{r}
 #read about `aes_string`. You want to use `aes_string` instead of `aes` since `selectInput` returns a character.
-recnderPlot({
+renderPlot({
 ggplot(data = bad_drivers, aes_string(x = input$xaxis, y = input$yaxis))  +
     geom_point() +
   ggtitle('Insurance premiums data')
