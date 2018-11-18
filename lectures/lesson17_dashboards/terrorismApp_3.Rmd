@@ -13,7 +13,6 @@ runtime: shiny
 library(tidyverse)
 library(flexdashboard)
 library(plotly)
-library(shiny)
 ```
 
 ```{r}
@@ -28,19 +27,15 @@ Inputs {.sidebar}
 
 ```{r}
 statesNames <- setNames(unique(dt$state), unique(dt$state)) %>% as.list()
-#If I go to View each thing is a character vector of length 1.
-
-#drop down menu for the 1st plot
- selectInput("state1", label = h4("State 1"), 
+ selectInput("state1", label = h4("Country 1"), 
     choices = statesNames, 
     selected = 'Belgium')
- #h4 just affects the size of the label
 
-#dropdown menu for the second (uncomment and fill the ...)
-
-selectInput("state2", label = h4("State 2"),
-   choices = statesNames,
-   selected = 'France')
+statesNames <- setNames(unique(dt$state), unique(dt$state)) %>% as.list()
+ selectInput("state2", label = h4("Country 2"), 
+    choices = statesNames, 
+    selected = 'United Kingdom')
+# use checkboxInput() to create the checkbox
 ```
  
 
@@ -53,8 +48,7 @@ Column {data-width=650}
 ```{r}
 
 renderPlot({
-  #create a logical variable named `selected` that is TRUE if a country is selected in either one of the drop-down menus and FALSE otherwise. To extract the selected value use input$selectInputID e.g., input$state1
-  dt %>%  mutate(selected  = ... %in%  ....) %>% 
+  dt %>% mutate(selected  = state %in% c(input$state1, input$state2)) %>% 
   ggplot(aes(x = state, y = total, fill = selected)) +
   geom_col(show.legend = F) +
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
@@ -66,25 +60,30 @@ renderPlot({
 Column {data-width=350}
 -----------------------------------------------------------------------
 
-### `r reactive({ input$state1 })`
+### `r reactive({ unname(input$state1) })`
 
 ```{r}
-#create a function to plot a linechart given a dataset `df` and a country name `country`
-# statePlot <- function(df, country) { 
-#           .....
-# }
-# 
-# renderPlot({ 
-#   statePlot(...) 
-#   })
+statePlot <- function(df, country) { 
+              filter(df, state == country) %>% 
+                      ggplot(aes(iyear, casualties )) + 
+                      geom_line() + 
+                      scale_x_continuous(name = 'year')
+}
+
+
+#the scaled version the statePlot() function should take an additional line for scaling y, e.g.:
+#scale_y_continuous(limits = c(0, max)) where max is the highest count of casualties between the two countries
+
+renderPlot({ 
+  statePlot( dtYear, country = input$state1) 
+  })
 ```
 
-### Make this reactive using reactive({})
+### `r reactive({ unname(input$state2) })`
 
 ```{r}
-# 
-# renderPlot({ 
-#   statePlot(dtYear, country = input$state2) 
-#   })
+renderPlot({ 
+  statePlot( dtYear, country = input$state2) 
+  })
 ```
 

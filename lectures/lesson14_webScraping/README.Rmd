@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE, eval = F)
 
 # Introduction
 
-Web scraping is the process of extracting information from a website. There are at least four main R packages that are popular for web scraping (sorted by easy of use):
+Web scraping is the process of extracting information from a website. There are at least four main R packages that are popular for web scraping (sorted by ease of use):
 
 [rvest](https://github.com/hadley/rvest)
 
@@ -31,16 +31,16 @@ Writing code for a scraper requires referencing to the underlying HTML structure
 
 Although you might not be familiar with HTML, writing a scraper does not necessarily require web-developing skills. HTML is a markup language (similarly to RMarkdown) that instructs a browser (e.g., Google Chrome) on how to render, or display, a web page. Scraping information is ultimately about finding the tag that embeds the information we are looking for. To reference tags you can use either CSS paths or XPath. To compose a CSS path use tag names and [CSS selectors](https://www.w3schools.com/cssref/css_selectors.asp). If you prefer using XPath, you install Chrome extensions such as [SelectorGadget](https://selectorgadget.com/).
 
-Suppose we want to scrape data about the rating of some companies from [Indeed](https://www.indeed.com/). My approach is usually to see how close you can get to the output you need leveraging just patterns in the URL - hopefully close enough were assembling the right URL is enough to query all the data you need!
+Suppose we want to scrape data about the rating of some companies from [Indeed](https://www.indeed.com/). My approach is usually to see how close you can get to the output you need leveraging just patterns in the URL - hopefully close enough where assembling the right URL is enough to query all the data you need!
 
-So navigate to the website and check to which URL you land we trying to collect company ratings manually. Probably you want to type the company names one by one in the search bar and search. Then, you want look at how many starts a company is awarded (company rating). Thus the scraper needs to automatize two tasks:
+So navigate to the website and check to which URL you land we trying to collect company ratings manually. Probably you want to type the company names one by one in the search bar and search. Then, you want look at how many stars a company is awarded (company rating). Thus the scraper needs to automatize two tasks:
 
  1. search the company profile page on Indeed
- 2. extract the information about "how many starts" the company has
+ 2. extract the information about "how many stars" the company has
 
 ## Searching company's profile page
 
-Although the [webpage](https://www.indeed.com/Best-Places-to-Work) contains multiple elements and quite a lot of code, when inspecting the code would at least expect something like:
+Although the [webpage](https://www.indeed.com/Best-Places-to-Work) contains multiple elements and quite a lot of code, when inspecting the code one would at least expect something like:
 
 ```
 <!DOCTYPE html>
@@ -72,11 +72,11 @@ library(tidyverse)
 #' WARNING: we are using the link for Exxonmobil instead of the 
 #' general  https://www.indeed.com/Best-Places-to-Work or https://www.indeed.com/cmp 
 #' because the home page requires manipulating some JS
-url <- 'https://www.indeed.com/cmp/Exxonmobil'
+url <- 'https://www.indeed.com/cmp/Target'
 session <- html_session(url) 
 ```
  
-Then we use `html_form` to access the code for any form within the page. There two forms (one at the top, one at the bottom). We save the first to the object `form`:
+Then we use `html_form` to access the code for any form within the page. There are two forms (one at the top, one at the bottom). We save the first to the object `form`:
  
 ```{r}
 form <- html_form(session)[[1]]
@@ -96,7 +96,7 @@ If you try to search for a company manually, you should realize that the searchb
 
 
 
-The first though may be "Ok now I need to fake a click on one of the results!" However, we said that simulating these behaviors is a bit more complicated, and we want to make use of static URLs as much as possible. Here is a workaround I found. Just pretend you do not care about the autocomplete and you brute-force the search engine to search for a name that is not matching any of those proposed (e.g., `Exxon` instead of `Exxonmobile`).
+The first thought may be "Ok now I need to fake a click on one of the results!" However, we said that simulating these behaviors is a bit more complicated, and we want to make use of static URLs as much as possible. Here is a workaround I found. Just pretend you do not care about the autocomplete and you brute-force the search engine to search for a name that is not matching any of those proposed (e.g., `Exxon` instead of `Exxonmobile`).
 
 
 
@@ -157,13 +157,3 @@ html_nodes('table.daily_climate_table') %>%
 ```
 
 We want to collect temperature data for Baton Rouge from `tempUrl` for 2016-2017. The output is gonna be a tibble with: Day, High Temperature, Low Temperature, Precipitation, Snow, Snowdepth.
-
-
-
-
-
-
-
-
-
-

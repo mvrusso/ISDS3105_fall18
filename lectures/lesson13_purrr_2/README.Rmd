@@ -60,7 +60,7 @@ With `map` can iterate one function over multiple elements. For iterating multip
 invoke_map(list(var, cor, cov), list(list(x = bad_drivers$insurance_premiums, y = bad_drivers$perc_alcohol)))
 
 #calculate mean and median for one variable
-invoke_map(list(avg = mean, IIQ = median), list(x = bad_drivers$insurance_premiums, x = bad_drivers$insurance_premiums))
+invoke_map(list(avg = mean, IIQ = median), x = bad_drivers$insurance_premiums)
 invoke_map_df(list(avg = mean, IIQ = median), x = bad_drivers$insurance_premiums)
 ```
 
@@ -82,7 +82,7 @@ hotels <- read_csv(here::here('data','taipeiHotel', 'hotel.csv'))
 performance <- read_csv(here::here('data','taipeiHotel', 'performance.csv'))
 ```
 
-Create an ggplot function to draw a linechart of the `AverageRoomRate` over time (`Month`) and save it into a folder 'timeLines'. Use iteration to create a separate chart of each hotel and save it. Make sure each chart is titled and saved meaningfully.
+Create a ggplot function to draw a linechart of the `AverageRoomRate` over time (`Month`) and save it into a folder 'timeLines'. Use iteration to create a separate chart of each hotel and save it. Make sure each chart is titled and saved meaningfully.
 
 ```{r}
 #' HINTS:
@@ -93,25 +93,24 @@ Create an ggplot function to draw a linechart of the `AverageRoomRate` over time
 #' You could use `dir.create()` to create the `timeLines` directory - perhaps conditionally using `dir.exists()`
 #' if the folder does not exists yet.
 
+if(!require(here)) {install.packages('here')}
+
 drawRoom <- function(data, title) {
   ggplot(data = data)+
     geom_line(aes(x = Month, y = AverageRoomRate))+
-    ggtitle('Average Room Rates for', title)
+    ggtitle(paste('Average Room Rates for', title))
 }
 
 group_performance1 <- performance %>% group_by(hotel) %>% nest()
 
-group_performance2 <- group_performance1 %>% mutate(rates = pmap(list(data = .$data, title = .$hotel), .f = drawRoom))
+x <- c(1:length(group_performance1$data))
 
-drawRoom(group_performance1$data[[1]], 'Tapei') #This is just an example to see how the function works.
+for(i in seq_along(x)) {
+  ggsave(filename = paste0(group_performance1$hotel[i], '.png'),
+         plot = drawRoom(group_performance1$data[[i]], group_performance1$hotel[i]), path = here('lectures', 'lesson13_purrr_2', 'timeLines'))
+}
 
-ggsave('timeLines', plot = last_plot())
 ```
-
-
-
-
-
 
 
 
